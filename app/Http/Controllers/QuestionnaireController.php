@@ -17,7 +17,7 @@ class QuestionnaireController extends Controller
     {
         $questionnaires = Questionnaire::all();
 
-        return view('questionnaires.index',['questionnaires' => $questionnaires]);
+        return view('questionnaires.index', ['questionnaires' => $questionnaires]);
     }
 
     /**
@@ -34,14 +34,15 @@ class QuestionnaireController extends Controller
     // public function store(StoreQuestionnaireRequest $request)
     public function store(Request $request)
     {
+        // get all data from request
         $data = $request->all();
-        $questionnaire = Questionnaire::create(Arr::only($data, ['title', 'description', 'expires_at']));
 
+        // Create questionnaire
+        $questionnaire = Questionnaire::create(Arr::only($data, ['title', 'description', 'expires_at']));
 
         // if has questions then create them
         if (isset($data['questions'])) {
-            foreach ($data['questions'] as $question) {
-
+            $questions = collect($data['questions'])->map(function ($question) {
                 // check if question has options that are not empty/null
                 if (isset($question['options'])) {
                     $question['options'] = array_filter($question['options']);
@@ -52,11 +53,17 @@ class QuestionnaireController extends Controller
                     $question['options'] = null;
                 }
 
-                // 
-                $questionnaire->questions()->create($question);
-            }
+                return $question;
+            });
+
+            // create questions 
+            // using createMany() method
+            // helps us to create multiple records at once
+            $questionnaire->questions()->createMany($questions);
         }
 
+
+        // redirect to index page
         return redirect()->route('questionnaire.index');
     }
 

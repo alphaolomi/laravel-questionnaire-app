@@ -7,19 +7,29 @@
 @section('content')
   <div class="container mt-5">
     <h1 class="mb-5">Create Questionnaire</h1>
+    @if ($errors->any())
+      <div class="alert alert-danger">
+        <ul class="mb-0">
+          @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+      </div>
+    @endif
     <form id="questionnaireForm" method="POST" action="{{ route('questionnaire.store') }}">
       @csrf
 
       <div class="mb-3">
         <label for="title" class="form-label">Questionnaire Title</label>
         <input type="text" class="form-control" id="title" name="title" required>
+        @error('title')
+          <div class="alert alert-danger mt-2">{{ $message }}</div>
+        @enderror
       </div>
 
       <hr>
 
-      <div id="questionsContainer">
-        <!-- Dynamic questions will be added here -->
-      </div>
+      <div id="questionsContainer"> </div>
 
       <button type="button" id="addQuestion" class="btn btn-primary">Add Question</button>
       <button type="submit" class="btn btn-success">Submit Questionnaire</button>
